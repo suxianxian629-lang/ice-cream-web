@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>🍦 冰淇淋推荐</title>
+
     <style>
         body {
             font-family: sans-serif;
@@ -15,12 +16,26 @@
             );
             padding: 0 16px;
         }
-        h1 {  text-align: center;
+
+        h1 {
+            text-align: center;
             font-size: 2.5rem;
-            color: #ff6b47; 
+            color: #ff6b47;
         }
-        h3 { margin-top: 24px; }
-        input, select {
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-top: -10px;
+            margin-bottom: 25px;
+        }
+
+        h3 {
+            margin-top: 24px;
+        }
+
+        input,
+        select {
             padding: 8px 12px;
             margin: 6px 0;
             border-radius: 8px;
@@ -29,6 +44,7 @@
             width: 100%;
             box-sizing: border-box;
         }
+
         button {
             padding: 10px 24px;
             background: #ff8c69;
@@ -40,7 +56,11 @@
             margin-top: 10px;
             width: 100%;
         }
-        button:hover { background: #ff6b47; }
+
+        button:hover {
+            background: #ff6b47;
+        }
+
         .card {
             background: white;
             border-radius: 20px;
@@ -48,7 +68,23 @@
             margin-top: 20px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.12);
         }
-        .result { font-size: 1.4rem; text-align: center; margin: 8px 0; }
+
+        .result-card {
+            text-align: center;
+            background: linear-gradient(
+                135deg,
+                #ff9a9e,
+                #fad0c4
+            );
+            color: white;
+        }
+
+        .result {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
         .tag {
             display: inline-block;
             background: #ffe0cc;
@@ -57,6 +93,7 @@
             margin: 4px;
             font-size: 0.9rem;
         }
+
         .small-btn {
             width: auto;
             padding: 6px 14px;
@@ -64,80 +101,151 @@
             background: #ffb347;
             margin-top: 0;
         }
-        .clear-btn { background: #ddd; color: #666; }
-        .clear-btn:hover { background: #ccc; }
-        #city-row { display: none; }
+
+        .clear-btn {
+            background: #ddd;
+            color: #666;
+        }
+
+        .clear-btn:hover {
+            background: #ccc;
+        }
+
+        #city-row {
+            display: none;
+        }
     </style>
 </head>
+
 <body>
-    <h1>🍦 冰淇淋推荐</h1>
+
+    <h1>🍦 AI冰淇淋推荐师</h1>
+
+    <p class="subtitle">
+        根据天气智能推荐冰淇淋口味
+    </p>
 
     {% if message %}
-    <div class="card" style="text-align:center;">{{ message }}</div>
+    <div class="card" style="text-align:center;">
+        {{ message }}
+    </div>
     {% endif %}
 
     <!-- 推荐表单 -->
     <div class="card">
         <h3>🌤️ 今天的天气</h3>
+
         <form method="POST" action="/recommend">
+
             <select name="use_api" onchange="toggleCity(this)">
                 <option value="n">手动输入温度湿度</option>
                 <option value="y">自动获取天气</option>
             </select>
 
             <div id="city-row">
-                <input type="text" name="city" placeholder="城市（英文，如 Beijing）">
-            </div>
-            <div id="manual-row">
-                <input type="number" name="temperature" placeholder="温度（℃）">
-                <input type="number" name="humidity" placeholder="湿度（%）">
+                <input
+                    type="text"
+                    name="city"
+                    placeholder="城市（英文，如 Beijing）"
+                >
             </div>
 
-            <input type="text" name="dislike" placeholder="不喜欢的口味？直接回车跳过">
-            <button type="submit">推荐给我 🍦</button>
+            <div id="manual-row">
+                <input
+                    type="number"
+                    name="temperature"
+                    placeholder="温度（℃）"
+                >
+
+                <input
+                    type="number"
+                    name="humidity"
+                    placeholder="湿度（%）"
+                >
+            </div>
+
+            <input
+                type="text"
+                name="dislike"
+                placeholder="不喜欢的口味？直接回车跳过"
+            >
+
+            <button type="submit">
+                推荐给我 🍦
+            </button>
+
         </form>
     </div>
 
     <!-- 推荐结果 -->
     {% if result %}
-    <div class="card" style="text-align:center;">
+    <div class="card result-card">
+
         <p>{{ mood }}</p>
-        <p class="result">🍦 推荐你：<strong>{{ result }}</strong></p>
+
+        <p class="result">
+            🍦 推荐你：<strong>{{ result }}</strong>
+        </p>
+
         <form method="POST" action="/favorite">
-            <input type="hidden" name="item" value="{{ result }}">
-            <button type="submit" class="small-btn">❤️ 收藏这个口味</button>
+            <input
+                type="hidden"
+                name="item"
+                value="{{ result }}"
+            >
+
+            <button type="submit" class="small-btn">
+                ❤️ 收藏这个口味
+            </button>
         </form>
+
     </div>
     {% endif %}
 
     <!-- 收藏口味 -->
     {% if favorites %}
     <div class="card">
+
         <h3>❤️ 我的收藏</h3>
+
         {% for f in favorites %}
         <span class="tag">{{ f }}</span>
         {% endfor %}
+
     </div>
     {% endif %}
 
     <!-- 历史记录 -->
     {% if history %}
     <div class="card">
+
         <h3>📜 历史记录</h3>
+
         {% for i, item in enumerate(history) %}
         <p>第{{ i+1 }}次：{{ item }}</p>
         {% endfor %}
+
         <form method="POST" action="/clear">
-            <button type="submit" class="small-btn clear-btn">🗑️ 清空记录</button>
+            <button
+                type="submit"
+                class="small-btn clear-btn"
+            >
+                🗑️ 清空记录
+            </button>
         </form>
+
     </div>
     {% endif %}
 
     <script>
         function toggleCity(sel) {
-            document.getElementById("city-row").style.display = sel.value === "y" ? "block" : "none";
-            document.getElementById("manual-row").style.display = sel.value === "y" ? "none" : "block";
+            document.getElementById("city-row").style.display =
+                sel.value === "y" ? "block" : "none";
+
+            document.getElementById("manual-row").style.display =
+                sel.value === "y" ? "none" : "block";
         }
     </script>
+
 </body>
 </html>
